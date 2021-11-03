@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+ 
+    <script type="text/javascript" src="home_js/jquery.js"></script>
+    <script type="text/javascript" src="home_layer/layer.js"></script>
+</head>
+<body>
+    <form action="{:url('index/intoExcel')}" method="post" id="form1" enctype="multipart/form-data">
+                <span class="c-red">*</span><input type="file" name='file1' id="file">
+                <a href="javascript:;" onclick="daoru()" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe645;</i> 导入数据</a>
+            </form>
+</body>
+</html>
+    
+
+<script type="text/javascript">
+
+function daoru(){
+    if($('#i').val()==2){
+         layer.msg('数据上传中请稍后');
+         return false;
+    }
+    if($('#file').val()==''){
+         layer.tips('请上传Excel表', '#file',{tips: [3, '#78BA32']});
+        $('#file').focus();
+        return false;
+    }
+    $('#i').val(2);
+    $('#form1').submit();
+}
+
+    </script>

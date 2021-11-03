@@ -1,10 +1,92 @@
 <?php
 namespace app\index\controller;
 
-class Index
+use think\Controller;
+
+use app\index\controller\PHPExcel;
+
+use think\Db;
+use think\Url;
+use think\Config;
+use think\Image;
+class Index extends Controller
 {
-    public function index()
+  
+    public function daoru()
     {
-        return '<style type="text/css">*{ padding: 0; margin: 0; } .think_default_text{ padding: 4px 48px;} a{color:#2E5CD5;cursor: pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: "Century Gothic","Microsoft yahei"; color: #333;font-size:18px} h1{ font-size: 100px; font-weight: normal; margin-bottom: 12px; } p{ line-height: 1.6em; font-size: 42px }</style><div style="padding: 24px 48px;"> <h1>:)</h1><p> ThinkPHP V5<br/><span style="font-size:30px">十年磨一剑 - 为API开发设计的高性能框架</span></p><span style="font-size:22px;">[ V5.0 版本由 <a href="http://www.qiniu.com" target="qiniu">七牛云</a> 独家赞助发布 ]</span></div><script type="text/javascript" src="https://tajs.qq.com/stats?sId=9347272" charset="UTF-8"></script><script type="text/javascript" src="https://e.topthink.com/Public/static/client.js"></script><think id="ad_bd568ce7058a1091"></think>';
+      set_time_limit(0);
+      
+        return $this->fetch();
+       }
+
+    // 导入Excel表格
+    public function intoExcel(){
+       if (!empty($_FILES)){
+           // import('PHPExcel.PHPExcel', EXTEND_PATH);
+           vendor("PHPExcel.PHPExcel");
+           // 导入PHPExcel类库
+           $PHPExcel = new \PHPExcel();
+           // 创建PHPExcel对象，注意，不能少了
+            $file = request()->file('file1');
+            $info = $file->validate(['size'=>10000000000,'ext'=>'xlsx,xls,csv'])->move(ROOT_PATH . 'Uploads' . DS . 'Excel');
+            if($info){
+            $exclePath = $info->getSaveName();
+            //获取文件名
+            $file_name = ROOT_PATH . 'Uploads' . DS . 'Excel' . DS . $exclePath;
+            if (!file_exists($file_name)) {
+                die('no file!');
+            }
+            $extension = strtolower( pathinfo($file_name, PATHINFO_EXTENSION) );
+            
+            if ($extension =='xlsx') {
+               $objReader =\PHPExcel_IOFactory::createReader('Excel2007');
+                //$objExcel = $objReader ->load($file);
+            } else if ($extension =='xls') {
+                $objReader =\PHPExcel_IOFactory::createReader('Excel5');
+                //$objExcel = $objReader ->load($file);
+            } else if ($extension=='csv') {
+                $objReader =\PHPExcel_IOFactory::createReader('CVS');
+            }
+
+            //上传文件的地址
+            
+            $obj_PHPExcel =$objReader->load($file_name, $encode = 'utf-8');
+            //加载文件内容,编码utf-8
+            $excel_array=$obj_PHPExcel->getsheet(0)->toArray();
+            //转换为数组格式
+            var_dump($excel_array);
+          } else{
+          // 上传失败获取错误信息
+            echo $file->getError();
+          }
+        }
     }
+    // 到出Excel表格
+    public function exportExcel(){
+      // 表格数据
+            $aa=db('lists')->where('nid',2)->select();
+      // 表格名称
+            $bb='测试总表';
+      // 表头信息
+          $cc=[
+            'ID',
+            '标题',
+            '内容'
+           ];
+      // 数据对应字段
+          $dd=[
+            'id',
+            'title',
+            'content'
+          ];
+      // 表格宽度 1~10
+          $ee=[
+            '1',
+            '1',
+            '3'
+          ];
+            $Phpexcel=new Phpexcel;
+            $Phpexcel->exportExcel($aa,$bb,$cc,$dd,$ee);
+    }
+   
 }
